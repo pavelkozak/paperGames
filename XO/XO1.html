@@ -1,0 +1,149 @@
+﻿<!DOCTYPE HTML>
+
+<html>
+
+<head>
+  <title>XO</title>
+</head>
+
+<body>
+     <canvas id='example'>Обновите браузер</canvas>
+        <script src ="bg.js"></script>
+        <script >
+            var example = document.getElementById("example");
+            var ctx = example.getContext('2d');
+            example.width = 640;
+            example.height = 480;
+            var sizeField = 400;
+            var numOfCells = 4;
+            var numForWin = 3;
+            var numOfSym = 2;
+            var timeOut = 300 + 1500 / numOfCells;
+            var sizeOfCell = sizeField / numOfCells;
+            var offsetForX = sizeOfCell / 5;
+            var cellHalf = sizeOfCell / 2;
+            var lineWidth = 1 + sizeOfCell / 20;
+            var emptyCellArray = new Array();
+            var filledCellArray = new Array(numOfCells);
+            var message = "Game over!";
+            var isX = 1;
+            var winner = '';
+
+            setupArrays();
+
+            drawField();
+
+            main();
+
+           
+
+            function checkWinner(x, y, type) {
+                for (i = 0; i < numOfCells; i++) {
+                    var sumX_X = new Array();
+                    var sum0_X = new Array();
+                    var sumX_Y = new Array();
+                    var sum0_Y = new Array();
+
+                    for (j = 0; j < numOfCells; j++) {
+                        if (filledCellArray[i][j] == 1) {
+                            sumX_X.push([i, j]);
+                            sum0_X = new Array();
+                        } else if (filledCellArray[i][j] == 2) {
+                            sumX_X = new Array();
+                            sum0_X.push([i, j]);
+                        } else {
+                            sumX_X = new Array();
+                            sum0_X = new Array();
+                        }
+
+                        if (filledCellArray[j][i] == 1) {
+                            sumX_Y.push([j, i])
+                            sum0_Y = new Array();
+                        } else if (filledCellArray[j][i] == 2) {
+                            sumX_Y = new Array();
+                            sum0_Y.push([j, i])
+                        } else {
+                            sumX_Y = new Array();
+                            sum0_Y = new Array();
+                        }
+
+                        //console.log (sum0, sumX);
+
+                        if (sumX_X.length == numForWin || sumX_Y.length == numForWin) {
+                            winner = "X";
+                            if (sumX_X.length > sumX_Y.length) {
+                                drawFinalLine(sumX_X, "X");
+                            } else {
+                                drawFinalLine(sumX_Y, "Y");
+                            }
+
+                        } else if (sum0_X.length == numForWin || sum0_Y.length == numForWin) {
+                            winner = "0";
+                            if (sum0_X.length > sum0_Y.length) {
+                                drawFinalLine(sum0_X, "X");
+                            } else {
+                                drawFinalLine(sum0_Y, "Y");
+                            }
+                        }
+                        if (winner.length > 0) {
+                            message = "Game over, " + winner + " wins!";
+			    showFinalMessage();
+                            return 1;
+                        }
+                    }
+
+                }
+                return 0;
+            }
+
+            function main() {
+                if (emptyCellArray.length > 0) {
+                    
+                    var arrNum = Math.floor(Math.random() * emptyCellArray.length);
+                    var selX = emptyCellArray[arrNum][0];
+                    var selY = emptyCellArray[arrNum][1];
+                    
+                    drawSym(selX, selY, isX);
+                    filledCellArray[selX][selY] = isX;
+
+                    if (isX == numOfSym) {
+                        isX = 1;
+                    } else {
+                        isX++;
+                    }
+                    
+                    if (checkWinner(selX, selY, 0) == 0) {
+                        setTimeout(main, timeOut);
+                    }
+
+                    emptyCellArray.splice(arrNum, 1);
+                } else {
+                    showFinalMessage();
+                }
+            }
+
+ 
+          
+            function drawFinalLine(arrXY, type) {
+                ctx.beginPath();
+                if (type == 'X') {
+                    ctx.moveTo(arrXY[0][0] * sizeOfCell + cellHalf, arrXY[0][1] * sizeOfCell + cellHalf / 2);
+                    ctx.lineTo(arrXY[numForWin - 1][0] * sizeOfCell + cellHalf, arrXY[numForWin - 1][1] * sizeOfCell + cellHalf * 1.5);
+                } else {
+                    ctx.moveTo(arrXY[0][0] * sizeOfCell + cellHalf / 2, arrXY[0][1] * sizeOfCell + cellHalf);
+                    ctx.lineTo(arrXY[numForWin - 1][0] * sizeOfCell + cellHalf * 1.5, arrXY[numForWin - 1][1] * sizeOfCell + cellHalf);
+                }
+                ctx.strokeStyle = '#ff0000';
+                ctx.lineWidth = lineWidth;
+                ctx.stroke();
+            }
+
+            function showFinalMessage() {
+                ctx.font = "20px Arial";
+                ctx.fillStyle = 'red';
+                ctx.fillText(message, 10, sizeField + 30);
+            }
+        </script>
+</body>
+
+</html>
